@@ -14,7 +14,7 @@ public class Account{
 	String driver="com.mysql.jdbc.Driver";
 	Connection con;
 	
-	public int checkLogin(String email, String password) throws Exception{
+	public boolean checkLoginAdmin(String email, String password) throws Exception{
 		dbConnect();
 		
 		int count = 0; 
@@ -28,29 +28,48 @@ public class Account{
 			count = rst.getInt("count");
 		} 
 		dbClose(); 
-		if(count == 0){
-			dbConnect();
-			int count1 = 0; 
-			String sql1 = "select count(*) as count from user where email = ? AND password = ?"; 
-			PreparedStatement pstmt1 = con.prepareStatement(sql1); 
-			pstmt1.setString(1, email); 
-			pstmt1.setString(2, password); 
-			ResultSet rst1 = pstmt.executeQuery(); 
-
-			while(rst1.next()){
-				count1 = rst.getInt("count");
-			} 
-			dbClose();
-			if(count1 == 0)
-				return 0; 
-			else
-				
-				return 1;
-		}
+		if(count == 0)
+			return false;
 		else 
-			return 3;
+			return true;
 
-	}	
+	}
+	public boolean checkLoginUser(String email, String password) throws Exception{
+		dbConnect();
+		
+		int count = 0; 
+		String sql = "select count(*) as count from user where email = ? AND password = ?"; 
+		PreparedStatement pstmt = con.prepareStatement(sql); 
+		pstmt.setString(1, email); 
+		pstmt.setString(2, password); 
+		ResultSet rst = pstmt.executeQuery(); 
+
+		while(rst.next()){
+			count = rst.getInt("count");
+		} 
+		dbClose(); 
+		if(count == 0)
+			return false;
+		else 
+			return true;
+
+	}
+	public String checkUserRole(String email) throws Exception{
+		dbConnect();
+		
+		String sql = "select role from user where email = ?"; 
+		PreparedStatement pstmt = con.prepareStatement(sql); 
+		pstmt.setString(1, email);  
+		ResultSet rst = pstmt.executeQuery(); 
+		String role = "";
+		while(rst.next()){
+			role = rst.getString(1);
+		} 
+		dbClose(); 
+		return role;
+
+	}
+	
 	
 	
 	

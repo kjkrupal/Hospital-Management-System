@@ -34,6 +34,7 @@ public class Admin extends HttpServlet {
 		String action=request.getParameter("action");
 		
 		HttpSession session = request.getSession();
+		
 		if(action.equals("login")){
 			
 			String email = request.getParameter("email"); 
@@ -41,27 +42,65 @@ public class Admin extends HttpServlet {
 			
 			Account account = new Account(); 
 
-			int status=0;
+			boolean statusAdmin = false;
 			try {
-				status = account.checkLogin(email, password);
+				statusAdmin = account.checkLoginAdmin(email, password);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			if(status == 3){ 
+			if(statusAdmin == true){ 
 				session.setAttribute("email", email);
-				request.getRequestDispatcher("student-home.jsp").forward(request, response); 
+				request.getRequestDispatcher("admin-home.jsp").forward(request, response); 
 
 			} 
 
-			else{ 
-				request.setAttribute("sid", email); 
-				request.setAttribute("password", password); 
-				request.setAttribute("msg", "Invalid Username/Password"); 
-				request.getRequestDispatcher("login.jsp").forward(request, response); 
+			else{
+				boolean statusUser = false;
+				try {
+					statusUser = account.checkLoginUser(email, password);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				if(statusUser == true){ 
+					String role = "";
+					try {
+						role = account.checkUserRole(email);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					if(role.equals("Receptionist")){
+						session.setAttribute("email", email);
+						request.getRequestDispatcher("reception-home.jsp").forward(request, response); 
+					}
+					else{
+						session.setAttribute("email", email);
+						request.getRequestDispatcher("pharmacy-home.jsp").forward(request, response);
+					}
+				}
+				else{
+					request.setAttribute("email", email); 
+					request.setAttribute("password", password); 
+					request.setAttribute("msg", "Invalid Username/Password"); 
+					request.getRequestDispatcher("login.jsp").forward(request, response);
+				}
 			}
 			
 		}
+		if(action.equals("add-user")){
+			request.getRequestDispatcher("add-user.jsp").forward(request, response);
+		}
+		if(action.equals("add-doctor")){
+			request.getRequestDispatcher("add-doctor.jsp").forward(request, response);
+		}
+		if(action.equals("edit-user")){
+			request.getRequestDispatcher("edit-user.jsp").forward(request, response);
+		}
+		if(action.equals("edit-doctor")){
+			request.getRequestDispatcher("edit-doctor.jsp").forward(request, response);
+		}
+		
 	}
 
 }
